@@ -89,7 +89,7 @@ def using_config(config):
             fall_list.append(f)
 
     point_array, color_array, fall_array = np.array(point_list), np.array(color_list), np.array(fall_list)
-    transform_f = make_transform_f(kh, -kw)
+    transform_f = make_transform_f(-kh, -kw)
     transformed_point_array = np.apply_along_axis(transform_f, axis=-1, arr=point_array)
 
     ortho_z = ortho_from_pointcloud(transformed_point_array, max_h, max_w, res=1,

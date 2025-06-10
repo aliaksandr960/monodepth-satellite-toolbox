@@ -131,8 +131,8 @@ def using_config(config):
         rkh_list.append(kh / dk)
         rkw_list.append(kw / dk)
 
-    mkh = statistics.median(rkh_list)
-    mkw = statistics.median(rkw_list)
+    mkh = statistics.mean(rkh_list)
+    mkw = statistics.mean(rkw_list)
     std_kh = statistics.stdev(rkh_list)
     std_kw = statistics.stdev(rkw_list)
 
