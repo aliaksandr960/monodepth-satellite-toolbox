@@ -1,5 +1,5 @@
 # Monodepth Satallite Toolbox
-*Functionality to process satallite imagery with Monocular Depth neural networks*
+*Pipeline to process satallite imagery with Monocular Depth neural networks*
 
 **The concept is that perspective satellite orthophotos are already corrected using digital elevation models (DEMs). However, these DEMs typically exclude buildings and forests.**
 
