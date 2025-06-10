@@ -78,7 +78,7 @@ Due I not found any specific datasetes, I just made 6 screenshots form Goggle Ma
 
 If ortho looks fine - it means height estimation and depthmaps also fine.
 
-I used Meta Depth Anyting V2 model, becouse it is more CPU-friendly
+I used Meta Depth Anyting V2 model, becouse it is more CPU-friendly.
 
 ![Cross correlation](docs/test_1.jpg)
 
