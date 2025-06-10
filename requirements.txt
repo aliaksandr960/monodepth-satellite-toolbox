@@ -1,0 +1,10 @@
+numpy
+opencv-python
+torch
+torchvision
+transformers
+addict
+scipy
+tqdm
+scikit-image
+rasterio
