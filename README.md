@@ -1,6 +1,10 @@
 # Monodepth Satallite Toolbox
 *Functionality to process satallite imagery with Monocular Depth neural networks*
 
+**The concept is that perspective satellite orthophotos are already corrected using digital elevation models (DEMs). However, these DEMs typically exclude buildings and forests.**
+
+**By applying monocular depth estimation, it's possible to estimate the distance from elevated features to their ground footprint — effectively providing an estimate of their height.**
+
 # Usage:
 - *python pipeline.py 'path to reconstruction folder'*, reconstruction folder should have *'raster.tif'* file
 - use jupyter-notebook and *pipeline.ipynb* file
