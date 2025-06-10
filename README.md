@@ -74,7 +74,7 @@ Best use with Z18 scale, or about 0.6m GSD.
 
 ## Tests
 
-Due I not found any specific datasetes, I just grabbed 6 images form all around the world.
+Due I not found any specific datasetes, I just made 6 screenshots form Goggle Maps all around the world.
 
 If ortho looks fine - it means height estimation and depthmaps also fine.
 
