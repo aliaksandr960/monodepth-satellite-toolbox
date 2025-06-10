@@ -64,5 +64,27 @@ Best use with Z18 scale, or about 0.6m GSD.
 - Calculate walls and cliffs
 
 
-#### 6. merge_analytics
+#### 6. merge_analytics.py
 - Overlapping patches merging using center-distance weighting to minimize visible differences between them
+
+
+#### 7. ortho.py
+- Convert analytics and raster to point cloud -> transform > store as color.tif and height.tif
+
+
+## Tests
+
+Due I not found any specific datasetes, I just grabbed 6 images form all around the world.
+
+If ortho looks fine - it means height estimation and depthmaps also fine.
+
+I used Meta Depth Anyting V2 model, becouse it is more CPU-friendly
+
+![Cross correlation](docs/test_1.jpg)
+
+Across all six samples, none failed completely. Directions were calculated quite accurately in every case. There were some issues, such as inaccurately segmented walls in Batumi and background removal problems for the Chicago warehouse. However, overall, everything looks reasonably good.
+
+ # Licensing:
+ - The code is released under the MIT License.
+ - File *'test_reconstruction/raster.tif'* is a screenshot from Google Maps. Its usage should comply with Google Maps' Terms of Service."
+ - Model weights and dependencies are licensed by their respective authors.
