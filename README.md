@@ -1,5 +1,5 @@
 # Monodepth Satellite Toolbox
-*Functionality to process satellite imagery with Monocular Depth neural networks*
+*Pipeline to process satellite imagery with Monocular Depth neural networks*
 
 # Usage:
 - *python pipeline.py 'path to reconstruction folder'*, reconstruction folder should have *'raster.tif'* file
