@@ -1,84 +1,86 @@
-# Monodepth Satallite Toolbox
-*Functionality to process satallite imagery with Monocular Depth neural networks*
+# Monodepth Satellite Toolbox
+*Functionality to process satellite imagery with Monocular Depth neural networks*
 
 # Usage:
-- *python pipeline.py 'path to reconstruction folder'*, reconstruction folder should have *'raster.tif'* file
-- use jupyter-notebook and *pipeline.ipynb* file
+- *python pipeline.py 'path to reconstruction folder'*, reconstruction folder should have *'raster.tif'* file
+- use jupyter-notebook and *pipeline.ipynb* file.
 
-Both files have dictionary with configuration, so you could adjust it.
+Both files have a dictionary with configuration so that you can adjust it.
 
 Best use with Z18 scale, or about 0.6m GSD.
 
 ## This toolbox can:
-1. **Split big GeoTIF image on patches, process each patch with monocular depth model, normalizer results and save as GeoTIF image**
+1. **Split big GeoTIF images on patches, process each patch with a monocular depth model and normalizer results and save them as GeoTIF images**
 ![split infer merge](docs/split-infer-merge.jpg)
 
 2. **Segment wall and сliffs**
 ![walls and cliffs](docs/walls-and-cliffs.jpg)
 
-3. **Ortho from perspective images**
+3. **Ortho from Perspective images**
 ![ortho](docs/ortho.jpg)
 
 4. **Occlusion map, to see what cannot be seen**
 ![occlusion](docs/occlusion_map.jpg)
 
-## Algorithms description:
+## Algorithms Description:
 
 #### 1. split.py
 
-- Grabs GeoTiff, split it to overlapping patches.
+- Grabs GeoTiff split it into overlapping patches.
 
 #### 2. depthmaps.py
 
 - Perform monocular depth estimation for each patch using **Apple DepthPro** or **Meta Depth Anything** models **(configurable)**.
 
-- Rellys on **HuggingFace** Transformers module, so it could be easy to integrate any model avaliable on **HuggingFace**.
+- Relays on **HuggingFace Transformers** module, so it could be easy to integrate any model available on **HuggingFace**.
 
 #### 3. heightmaps.py
 
-- Invert depthmaps
+- Invert depth maps.
 
-- Do min-pooling and smoothing to estimate background bias
+- Do min-pooling and smoothing to estimate background bias.
 
-- Substract background from inverted depth
+- Subtract the background from the inverted depth.
 
-*Could be a probles on really large buildings*
+*Could be a problem in really large buildings.*
 
 ![Background](docs/remove_background.jpg)
 
 
 #### 4. directions.py
 
-- Slice inverted depth with high gradients by some number of levels
+- Slice inverted depth with high gradients by some number of levels.
 
-- Skeletonize and cross-correlate levels between each other
+- Skeletonize and cross-correlate levels between each other.
 
-- Max cross correlation is view direction
+- Max cross-correlation is the view direction.
 
 ![Cross correlation](docs/cross_corr.jpg)
 
 #### 5. basic_analytics.py
 
-- After having view direction, it is possible to estimate subvertical surfaces and normalize inverted depth maps
+- After having a view direction, it is possible to estimate sub-vertical surfaces and normalize inverted depth maps.
 
-- Calculate walls and cliffs
+- Calculate walls and cliffs.
 
 
 #### 6. merge_analytics.py
-- Overlapping patches merging using center-distance weighting to minimize visible differences between them
+- Overlapping patches merging using center-distance weighting to minimize visible differences between them.
 
 
 #### 7. ortho.py
-- Convert analytics and raster to point cloud -> transform > store as color.tif and height.tif
+- Convert analytics and raster to point cloud -> transform -> store as color.tif and height.tif
+
+- Zero values in ortho depict occlusions.
 
 
 ## Tests
 
-Due I not found any specific datasetes, I just grabbed 6 images form all around the world.
+Due I not found any specific datasets, I just grabbed 6 images form all around the world.
 
-If ortho looks fine - it means height estimation and depthmaps also fine.
+If ortho looks fine - it means height estimation and depth are also fine.
 
-I used Meta Depth Anyting V2 model, becouse it is more CPU-friendly
+I used the Meta Depth Anything V2 model because it is more CPU-friendly.
 
 ![Cross correlation](docs/test_1.jpg)
 
