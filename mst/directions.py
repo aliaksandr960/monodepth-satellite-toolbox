@@ -10,7 +10,6 @@ import os
 import glob
 from tqdm import tqdm
 import cv2
-import math
 
 
 def minpool2d_nearest_pad(i, kernel_size, stride=1, padding=0):
@@ -104,11 +103,6 @@ def calculate_direction_coeffs(heightmap,
     th, tw = np.unravel_index(flat_index, ap_rescaled.shape)
     kh, kw = th - cah, tw - caw
     return kh, kw
-
-
-# import json
-# with open('data.json', 'w') as f:
-#     json.dump({'kh': float(kh), 'kw': float(kw)}, f)
 
 
 def using_config(config):
