@@ -11,6 +11,8 @@ Both files have a dictionary with configuration so that you can adjust it.
 
 Best use with Z18 scale, or about 0.6m GSD.
 
+It looks like analytics and orthophoto generation may require a significant amount of RAM and are not fully optimized yet. Please check your available memory, and if it's insufficient, consider splitting the reconstruction into smaller regions.
+
 ## This toolbox can:
 1. **Split big GeoTIF images on patches, process each patch with a monocular depth model and normalizer results and save them as GeoTIF images**
 ![split infer merge](docs/split-infer-merge.jpg)
