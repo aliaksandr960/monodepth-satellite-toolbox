@@ -136,7 +136,7 @@ def using_config(config):
 
     for h, d in zip(heightmap_path_list, directions_path_list):
         heightmap_name = os.path.basename(h)[:-len(config['heightmap_ext'])-1]
-        direction_name = os.path.basename(d)[:-len('json')]
+        direction_name = os.path.basename(d)[:-len('json')-1]
         if heightmap_name != direction_name:
             raise ValueError('Heightmap and direction files not match')
 
