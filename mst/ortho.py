@@ -58,8 +58,12 @@ def using_config(config):
             config = json.load(file)
 
     config = copy.deepcopy(config)
-    os.makedirs(config['ortho_dir'], exist_ok=False)
 
+    if os.path.exists(config['ortho_dir']):
+        print('Skipped. Folder with ortho found, remove it to re-do.')
+        return True
+    
+    os.makedirs(config['ortho_dir'], exist_ok=False)
     
     color_path = os.path.join(config['src_raster_path'])
     hmap_path = os.path.join(config['analytics_dir'], 'normalized_heightmap.tif')
@@ -75,20 +79,24 @@ def using_config(config):
     fall = cv2.imread(fall_path, cv2.IMREAD_UNCHANGED)
 
     max_h, max_w = hmap.shape
-    point_list = []
-    color_list = []
-    fall_list = []
+
+    count = 0
+    point_count = max_h*max_w
+    point_array = np.zeros([point_count, 3], dtype=np.float32)
+    color_array = np.zeros([point_count, 3], dtype=np.float32)
+    fall_array= np.zeros([point_count, 1], dtype=np.float32)
     for h in range(max_h):
         for w in range(max_w):
             z = hmap[h, w] 
             c = color[h, w, :]
             f = fall[h, w]
             
-            point_list.append((h, w, z))
-            color_list.append(c)
-            fall_list.append(f)
+            point_array[count, ...] = h, w, z
+            color_array[count, ...] = c
+            fall_array[count, ...] = f
 
-    point_array, color_array, fall_array = np.array(point_list), np.array(color_list), np.array(fall_list)
+            count += 1
+
     transform_f = make_transform_f(-kh, -kw)
     transformed_point_array = np.apply_along_axis(transform_f, axis=-1, arr=point_array)
 
