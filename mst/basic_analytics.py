@@ -135,14 +135,14 @@ def using_config(config):
     directions_path_list = sorted(glob.glob(f'{str(config["direction_dir"])}/**.json'))
 
     for h, d in zip(heightmap_path_list, directions_path_list):
-        heightmap_name = os.path.basename(h)[:-len(config['heightmap_ext'])]
+        heightmap_name = os.path.basename(h)[:-len(config['heightmap_ext'])-1]
         direction_name = os.path.basename(d)[:-len('json')]
         if heightmap_name != direction_name:
             raise ValueError('Heightmap and direction files not match')
 
 
     for ph, pd in tqdm(zip(heightmap_path_list, directions_path_list)):
-        heightmap_name = os.path.basename(ph)[:len(config['heightmap_ext'])]
+        heightmap_name = os.path.basename(ph)[:-len(config['heightmap_ext'])-1]
         heightmap = cv2.imread(ph, cv2.IMREAD_UNCHANGED)
         
         with open(pd, 'r') as file:

@@ -74,7 +74,7 @@ def using_config(config):
 
     for p in tqdm(patch_path_list):
 
-        patch_name = os.path.basename(p)[:len(config['patch_ext'])]
+        patch_name = os.path.basename(p)[:-len(config['patch_ext'])-1]
         depthmap_name = f'{patch_name}.{str(config["depthmap_ext"])}'
         depthmap_path = os.path.join(config['depthmap_dir'], depthmap_name)
         

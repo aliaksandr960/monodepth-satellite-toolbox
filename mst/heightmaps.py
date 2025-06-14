@@ -62,7 +62,7 @@ def using_config(config):
 
     for p in tqdm(depthmap_path_list):
 
-        depthmap_name = os.path.basename(p)[:len(config['depthmap_ext'])]
+        depthmap_name = os.path.basename(p)[:-len(config['depthmap_ext'])-1]
         heightmap_name = f'{depthmap_name}.{str(config["heightmap_ext"])}'
         heightmap_path = os.path.join(config['heightmap_dir'], heightmap_name)
         

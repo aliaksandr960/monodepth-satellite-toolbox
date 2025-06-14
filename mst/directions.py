@@ -118,7 +118,7 @@ def using_config(config):
 
     for p in tqdm(heightmap_path_list):
 
-        heightmap_name = os.path.basename(p)[:len(config['depthmap_ext'])]
+        heightmap_name = os.path.basename(p)[:-len(config['depthmap_ext'])-1]
         direction_name = f'{heightmap_name}.json'
         direction_path = os.path.join(config['direction_dir'], direction_name)
         heightmap = cv2.imread(p, cv2.IMREAD_UNCHANGED)
