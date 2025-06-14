@@ -3,6 +3,10 @@
 
 This repo is the next iteration in the development of https://github.com/aliaksandr960/maps_screenshot_to_3d
 
+# Updates:
+
+- 14 Jun 2025. Fixed a bug related to processing rasters with dimensions larger than 3840 pixels on the longest side. Memory optimized ortho transform (better, but still not ideal).
+
 # Usage:
 - *python pipeline.py 'path to reconstruction folder'*, reconstruction folder should have *'raster.tif'* file
 - use jupyter-notebook and *pipeline.ipynb* file.
