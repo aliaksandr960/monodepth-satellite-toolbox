@@ -17,7 +17,7 @@ def remove_directory(dir_path):
         shutil.rmtree(dir_path)
         print(f"Directory '{dir_path}' and its contents have been removed.")
     except FileNotFoundError:
-        print(f"Error: Directory '{dir_path}' not found.")
+        pass
 
 
 defalut_config = ADict()
