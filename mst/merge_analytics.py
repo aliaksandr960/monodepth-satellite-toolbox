@@ -100,6 +100,10 @@ def using_config(config):
             config = json.load(file)
 
     config = copy.deepcopy(config)
+
+    if os.path.exists(config['analytics_dir']):
+        print('Skipped. Folder with analytics found, remove it to re-do.')
+        return True
     
     os.makedirs(config['analytics_dir'], exist_ok=False)
 

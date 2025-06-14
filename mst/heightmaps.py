@@ -55,7 +55,11 @@ def using_config(config):
             config = json.load(file)
 
     config = copy.deepcopy(config)
-    
+
+    if os.path.exists(config['heightmap_dir']):
+        print('Skipped. Folder with heightmap found, remove it to re-do.')
+        return True
+
     os.makedirs(config['heightmap_dir'], exist_ok=False)
 
     depthmap_path_list = glob.glob(f'{str(config["depthmap_dir"])}/**.{str(config["depthmap_ext"])}')

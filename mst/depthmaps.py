@@ -59,6 +59,10 @@ def using_config(config):
             config = json.load(file)
 
     config = copy.deepcopy(config)
+
+    if os.path.exists(config['depthmap_dir']):
+        print('Skipped. Folder with depthmap found, remove it to re-do.')
+        return True
     
     os.makedirs(config['depthmap_dir'], exist_ok=False)
 

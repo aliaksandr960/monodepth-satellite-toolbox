@@ -52,6 +52,11 @@ def using_config(config):
     config = copy.deepcopy(config)
 
     config['patch_name_func'] = lambda r, c: f'{str(r)}_{str(c)}.{str(config["patch_ext"])}'
+
+    if os.path.exists(config['patch_dir']):
+        print('Skipped. Folder with patch found, remove it to re-do.')
+        return True
+
     os.makedirs(config['patch_dir'], exist_ok=False)
 
     split_raster(**config)

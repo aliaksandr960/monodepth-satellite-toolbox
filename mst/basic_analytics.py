@@ -125,6 +125,10 @@ def using_config(config):
             config = json.load(file)
 
     config = copy.deepcopy(config)
+
+    if os.path.exists(config['normalized_heightmap_dir']) and os.path.exists(config['wall_dir']) and os.path.exists(config['fall_dir']):
+        print('Skipped. Folders with analytics found, remove it to re-do.')
+        return True
     
     os.makedirs(config['normalized_heightmap_dir'], exist_ok=False)
     os.makedirs(config['wall_dir'], exist_ok=False)
