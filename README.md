@@ -20,7 +20,7 @@ It looks like analytics and orthophoto generation may require a significant amou
 **Please use the same GeoTIFF profile as in the example reconstruction.**
 Note the following:
 - JPEG compression does not support FP32 data.
-- Tiling is required to enable proper windowed reading.
+- Tiling should be switched off to enable proper windowed reading.
 - The 4th channel may not be processed correctly in some cases — this can result in blank output.
 These issues will be addressed in a future update.
 
