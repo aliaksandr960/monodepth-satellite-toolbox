@@ -17,7 +17,12 @@ Best use with Z18 scale, or about 0.6m GSD.
 
 It looks like analytics and orthophoto generation may require a significant amount of RAM and are not fully optimized yet. Please check your available memory, and if it's insufficient, consider splitting the reconstruction into smaller regions.
 
-**Please, used the same GeoTIF format as in example reconstruction**
+**Please use the same GeoTIFF profile as in the example reconstruction.**
+Note the following:
+- JPEG compression does not support FP32 data.
+- Tiling is required to enable proper windowed reading.
+- The 4th channel may not be processed correctly in some cases — this can result in blank output.
+These issues will be addressed in a future update.
 
 ## This toolbox can:
 1. **Split big GeoTIF images on patches, process each patch with a monocular depth model and normalizer results and save them as GeoTIF images**
