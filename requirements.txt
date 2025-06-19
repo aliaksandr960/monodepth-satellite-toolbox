@@ -8,3 +8,4 @@ scipy
 tqdm
 scikit-image
 rasterio
+open3d
