@@ -6,6 +6,7 @@ import copy
 import glob
 import os
 from tqdm import tqdm
+from multiprocessing import Pool, cpu_count
 
 
 # Remove background by substracting min surface
@@ -49,6 +50,28 @@ def remove_background(depth, min_pool_kernel=DEFAULT_MIN_POOL_KERNEL,
     return depth_nobackground
 
 
+def multiprocessing_remove_background(i):
+    p, config = i
+    depthmap_name = os.path.basename(p)[:-len(config['depthmap_ext'])-1]
+    heightmap_name = f'{depthmap_name}.{str(config["heightmap_ext"])}'
+    heightmap_path = os.path.join(config['heightmap_dir'], heightmap_name)
+    
+    depth = cv2.imread(p, cv2.IMREAD_UNCHANGED)
+    heightmap = remove_background(1 - depth,
+                                    config['heightmap_min_pool_kernel_1'],
+                                    config['heightmap_min_pool_padding_1'],
+                                    config['heightmap_gaussian_blur_sigma_1'])
+    
+    heightmap = remove_background(heightmap,
+                                    config['heightmap_min_pool_kernel_2'],
+                                    config['heightmap_min_pool_padding_2'],
+                                    config['heightmap_gaussian_blur_sigma_2'])
+
+
+    cv2.imwrite(heightmap_path, heightmap)
+    return True
+
+
 def using_config(config):
     if type(config) is str:
         with open(config, 'r') as file:
@@ -63,25 +86,14 @@ def using_config(config):
     os.makedirs(config['heightmap_dir'], exist_ok=False)
 
     depthmap_path_list = glob.glob(f'{str(config["depthmap_dir"])}/**.{str(config["depthmap_ext"])}')
+    info_list = [(i, config) for i in depthmap_path_list]
 
-    for p in tqdm(depthmap_path_list):
-
-        depthmap_name = os.path.basename(p)[:-len(config['depthmap_ext'])-1]
-        heightmap_name = f'{depthmap_name}.{str(config["heightmap_ext"])}'
-        heightmap_path = os.path.join(config['heightmap_dir'], heightmap_name)
-        
-        depth = cv2.imread(p, cv2.IMREAD_UNCHANGED)
-        heightmap = remove_background(1 - depth,
-                                     config['heightmap_min_pool_kernel_1'],
-                                     config['heightmap_min_pool_padding_1'],
-                                     config['heightmap_gaussian_blur_sigma_1'])
-        
-        heightmap = remove_background(heightmap,
-                                     config['heightmap_min_pool_kernel_2'],
-                                     config['heightmap_min_pool_padding_2'],
-                                     config['heightmap_gaussian_blur_sigma_2'])
-
-
-        cv2.imwrite(heightmap_path, heightmap)
-
+    processed_count = 0
+    with Pool(cpu_count()) as pool:
+        # tqdm with imap_unordered to show progress
+        for status in tqdm(pool.imap_unordered(multiprocessing_remove_background, info_list), total=len(info_list)):
+            if status is True:
+                processed_count += 1
+            else:
+                print('Processing error, check output patches')
     return True

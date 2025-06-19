@@ -75,6 +75,8 @@ def merge_and_save_patch_grid(src_raster_path, dst_raster_path, patch_path_map):
 
     # Update profile to singleband FP32
     profile.update(
+        compress='lzw',
+        tiled=False,
         dtype=rasterio.float32,
         count=1,
     )

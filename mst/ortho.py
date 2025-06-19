@@ -118,6 +118,8 @@ def using_config(config):
         profile = src.profile.copy()
 
     profile.update(
+        compress='lzw',
+        tiled=False,
         dtype=rasterio.uint8,
         count=3,
     )
@@ -128,7 +130,10 @@ def using_config(config):
         dst.write(ortho_color[...,[2,1,0]].transpose(2,0,1))  # shape must be (bands, rows, cols)
 
 
+    # Update profile to singleband FP32
     profile.update(
+        compress='lzw',
+        tiled=False,
         dtype=rasterio.float32,
         count=1,
     )
