@@ -84,40 +84,58 @@ def using_config(config):
     point_count = max_h*max_w
     point_array = np.zeros([point_count, 3], dtype=np.float32)
     color_array = np.zeros([point_count, 3], dtype=np.float32)
-    fall_array= np.zeros([point_count, 1], dtype=np.float32)
+
+    point_cloud_downscale = 1 if config['point_cloud_downscale'] is None else config['point_cloud_downscale']
+    fall_threshold = config['fall_threshold']
+
     for h in range(max_h):
+        if (h % point_cloud_downscale) != 0:
+            continue
         for w in range(max_w):
+            if (w % point_cloud_downscale) != 0:
+                continue
             z = hmap[h, w] 
             c = color[h, w, :]
             f = fall[h, w]
-            
+
+            if f > fall_threshold:
+                continue
             point_array[count, ...] = h, w, z
             color_array[count, ...] = c
-            fall_array[count, ...] = f
 
             count += 1
 
     transform_f = make_transform_f(-kh, -kw)
     transformed_point_array = np.apply_along_axis(transform_f, axis=-1, arr=point_array)
 
+    # Save point clound as np arrays
+    np.save(os.path.join(config['ortho_dir'], 'transformed_point_array.npy'), transformed_point_array)
+    np.save(os.path.join(config['ortho_dir'],'color_array.npy'), color_array)
+
+    # Make ortho
     ortho_z = ortho_from_pointcloud(transformed_point_array, max_h, max_w, res=1,
-                                    colors=None, falls=fall_array, fall_threshold=0.85)
+                                    colors=None, falls=None, fall_threshold=fall_threshold)
     
     ortho_color = ortho_from_pointcloud(transformed_point_array, max_h, max_w, res=1,
-                                        colors=color_array, falls=fall_array, fall_threshold=0.85)
+                                        colors=color_array, falls=None, fall_threshold=fall_threshold)
     
     mask = ortho_z > 0
     kernel = np.ones([3, 3])
     mask = signal.convolve2d(mask, kernel, boundary='symm', mode='same')
-    mask = mask > 5
+    mask = mask > config['ortho_outlier_filter_treshold']
 
     ortho_z = ortho_z * mask
     ortho_color = ortho_color * np.stack([mask, mask, mask], axis=-1)
 
     with rasterio.open(color_path) as src:
         profile = src.profile.copy()
+        src_height = src.height
+        src_width = src.width 
+
 
     profile.update(
+        height = src_height // point_cloud_downscale,
+        width = src_width // point_cloud_downscale,
         compress='lzw',
         tiled=False,
         dtype=rasterio.uint8,
@@ -132,6 +150,8 @@ def using_config(config):
 
     # Update profile to singleband FP32
     profile.update(
+        height = src_height // point_cloud_downscale,
+        width = src_width // point_cloud_downscale,
         compress='lzw',
         tiled=False,
         dtype=rasterio.float32,

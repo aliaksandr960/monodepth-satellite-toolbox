@@ -11,6 +11,7 @@ from mst.directions import using_config as directions
 from mst.basic_analytics import using_config as basic_analytics
 from mst.merge_analytics import using_config as merge_analytics
 from mst.ortho import using_config as ortho
+from mst.point_cloud import using_config as point_cloud
 
 def remove_directory(dir_path):
     try:
@@ -89,12 +90,18 @@ defalut_config.wall_rotataion_pad = 256
 # Merge analytics
 defalut_config.analytics_dir_name = 'analytics'
 
-
 # Make ortho
 defalut_config.ortho_dir_name = 'ortho'
+defalut_config.point_cloud_downscale = None
+defalut_config.fall_threshold = 0.85
+defalut_config.ortho_outlier_filter_treshold = 5
+
+# Make point cloud
+defalut_config.point_cloud_dir_name = 'pointcloud'
 
 
 def run_reconstruction(path='./test_reconstruction', **kwargs):
+    print('# Run:', str(path))
     actual_config = copy.deepcopy(defalut_config)
     actual_config.reconstruction_path = path
     actual_config.update(kwargs)
@@ -109,33 +116,40 @@ def run_reconstruction(path='./test_reconstruction', **kwargs):
     actual_config.fall_dir = os.path.join(actual_config.reconstruction_path, actual_config.fall_dir_name)
     actual_config.analytics_dir = os.path.join(actual_config.reconstruction_path, actual_config.analytics_dir_name)
     actual_config.ortho_dir = os.path.join(actual_config.reconstruction_path, actual_config.ortho_dir_name)
-
-    remove_directory(actual_config.patch_dir)
-    remove_directory(actual_config.depthmap_dir)
-    remove_directory(actual_config.heightmap_dir)
-    remove_directory(actual_config.direction_dir)
-    remove_directory(actual_config.normalized_heightmap_dir)
-    remove_directory(actual_config.wall_dir)
-    remove_directory(actual_config.fall_dir)
-    remove_directory(actual_config.analytics_dir)
-    remove_directory(actual_config.ortho_dir)
-
+    actual_config.point_cloud_dir = os.path.join(actual_config.reconstruction_path, actual_config.point_cloud_dir_name)
 
     # Pipeline run
+    print('Split started.')
     split(actual_config)
     print('Split done!')
+
+    print('Depthmaps started.')
     depthmaps(actual_config)
     print('Depthmaps done!')
+
+    print('Heightmaps started.')
     heightmaps(actual_config)
     print('Heightmaps done!')
+
+    print('Directions started.')
     directions(actual_config)
     print('Directions done!')
+
+    print('Basic_analytics started.')
     basic_analytics(actual_config)
     print('Basic_analytics done!')
+
+    print('Merge_analytics started.')
     merge_analytics(actual_config)
     print('Merge_analytics done!')
+
+    print('Ortho started.')
     ortho(actual_config)
     print('Ortho done!')
+
+    print('Point_cloud started.')
+    point_cloud(actual_config)
+    print('Point_cloud done!')
 
 
 if __name__ == "__main__":
