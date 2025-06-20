@@ -5,6 +5,7 @@ import json
 import cv2
 import rasterio
 from scipy import signal
+from tqdm import trange
 
 
 
@@ -15,7 +16,7 @@ def make_transform_f(kx, ky, bx=0, by=0):
 
 
 def ortho_from_pointcloud(points, height, width, res=1, colors=None,
-                          falls=None, fall_threshold=0.95):
+                          falls=None, fall_threshold=None):
     
     x, y, z = points[:,0], points[:,1], points[:,2]
     x_min, y_min = x.min(), y.min()
@@ -29,7 +30,7 @@ def ortho_from_pointcloud(points, height, width, res=1, colors=None,
         
     
     depth = np.full((height, width), -np.inf)
-    for idx in range(len(points)):
+    for idx in trange(len(points)):
         jj, ii = i[idx], j[idx]
         if jj >= height:
             continue
@@ -85,15 +86,10 @@ def using_config(config):
     point_array = np.zeros([point_count, 3], dtype=np.float32)
     color_array = np.zeros([point_count, 3], dtype=np.float32)
 
-    point_cloud_downscale = 1 if config['point_cloud_downscale'] is None else config['point_cloud_downscale']
     fall_threshold = config['fall_threshold']
 
-    for h in range(max_h):
-        if (h % point_cloud_downscale) != 0:
-            continue
+    for h in trange(max_h):
         for w in range(max_w):
-            if (w % point_cloud_downscale) != 0:
-                continue
             z = hmap[h, w] 
             c = color[h, w, :]
             f = fall[h, w]
@@ -113,11 +109,15 @@ def using_config(config):
     np.save(os.path.join(config['ortho_dir'],'color_array.npy'), color_array)
 
     # Make ortho
-    ortho_z = ortho_from_pointcloud(transformed_point_array, max_h, max_w, res=1,
-                                    colors=None, falls=None, fall_threshold=fall_threshold)
+    ortho_z = ortho_from_pointcloud(transformed_point_array,
+                                    max_h, max_w, res=1,
+                                    colors=None, falls=None, fall_threshold=None)
     
-    ortho_color = ortho_from_pointcloud(transformed_point_array, max_h, max_w, res=1,
-                                        colors=color_array, falls=None, fall_threshold=fall_threshold)
+    ortho_color = ortho_from_pointcloud(transformed_point_array,
+                                        max_h, max_w, res=1,
+                                        colors=color_array, falls=None, fall_threshold=None)
+    del transformed_point_array
+    del color_array
     
     mask = ortho_z > 0
     kernel = np.ones([3, 3])
@@ -129,37 +129,46 @@ def using_config(config):
 
     with rasterio.open(color_path) as src:
         profile = src.profile.copy()
-        src_height = src.height
-        src_width = src.width 
 
 
     profile.update(
-        height = src_height // point_cloud_downscale,
-        width = src_width // point_cloud_downscale,
         compress='lzw',
         tiled=False,
         dtype=rasterio.uint8,
         count=3,
+        nodata = None,
     )
 
     # Write to file
     ortho_color_path = os.path.join(config['ortho_dir'], 'color.tif')
     with rasterio.open(ortho_color_path, 'w', **profile) as dst:
         dst.write(ortho_color[...,[2,1,0]].transpose(2,0,1))  # shape must be (bands, rows, cols)
-
+    del ortho_color
 
     # Update profile to singleband FP32
     profile.update(
-        height = src_height // point_cloud_downscale,
-        width = src_width // point_cloud_downscale,
         compress='lzw',
         tiled=False,
         dtype=rasterio.float32,
         count=1,
+        nodata = None,
     )
 
     ortho_height_path = os.path.join(config['ortho_dir'], 'height.tif')
     with rasterio.open(ortho_height_path, 'w', **profile) as dst:
         dst.write(np.expand_dims(ortho_z, axis=0))
+    
+    # Update profile to singleband FP32
+    profile.update(
+        compress='lzw',
+        tiled=False,
+        dtype=rasterio.uint8,
+        count=1,
+        nodata = None,
+    )
+
+    ortho_height_path = os.path.join(config['ortho_dir'], 'occlusion.tif')
+    with rasterio.open(ortho_height_path, 'w', **profile) as dst:
+        dst.write(np.expand_dims((ortho_z == 0).astype(np.uint8), axis=0))
     
     return True

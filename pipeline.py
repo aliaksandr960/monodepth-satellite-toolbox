@@ -92,7 +92,6 @@ defalut_config.analytics_dir_name = 'analytics'
 
 # Make ortho
 defalut_config.ortho_dir_name = 'ortho'
-defalut_config.point_cloud_downscale = None
 defalut_config.fall_threshold = 0.85
 defalut_config.ortho_outlier_filter_treshold = 5
 
