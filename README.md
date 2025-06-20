@@ -1,11 +1,7 @@
 # Monodepth Satellite Toolbox
-*Pipeline to process satellite imagery with Monocular Depth neural networks*
+**Pipeline to process satellite imagery with Monocular Depth neural networks**
 
 This repo is the next iteration in the development of https://github.com/aliaksandr960/maps_screenshot_to_3d
-
-# Updates:
-
-- 14 Jun 2025. Fixed a bug related to processing rasters with dimensions larger than 3840 pixels on the longest side. Memory optimized ortho transform (better, but still not ideal).
 
 # Usage:
 - *python pipeline.py 'path to reconstruction folder'*, reconstruction folder should have *'raster.tif'* file
@@ -13,11 +9,36 @@ This repo is the next iteration in the development of https://github.com/aliaksa
 
 Both files have a dictionary with configuration so that you can adjust it.
 
-Best use with Z18 scale, or about 0.6m GSD.
+Best use with Z18 scale, or about 0.6m GSD and not a very big GeoTIF, due some algorithms put it on RAM.
 
-It looks like analytics and orthophoto generation may require a significant amount of RAM and are not fully optimized yet. Please check your available memory, and if it's insufficient, consider splitting the reconstruction into smaller regions.
+**Unfortunately, these algorithms do not provide height measurements in metric units. Instead, they estimate relative height as pixel distances between the perspective and orthographic views. To obtain height in meters, a scaling procedure is required.**
 
-## This toolbox can:
+# Recostruction file structure:
+#### Input and output:
+- **`raster.tif`: Input GeoTIF with perspectie satellite image.**
+- `analytics/`:
+    - `falls.tif`: GeoTIF with cliffs (falls)
+    - `walls.tif`: GeoTIF with walls or sub-vertical surfaces
+    - `normalized_heightmap.tif`: Merged heightmap normalized from 0 to 1.
+    - `directions.json`: Averaged view direction across all patches.
+- `ortho/`:
+    - `color.tif`: GeoTIF with ortho view.
+    - `height.tif`: GeoTIF with distances in pixels from perspective view to ortho view. To conver to metric value must be scaled.
+    - `occlusion.tif`: GeoTIF with occlusion map.
+    - `transformed_point_array.npy`: Point cloud coordinates as np.array, without fall (cliff) points. Z value - distances in pixels from perspective view to ortho view
+    - `color_array.npy`: Point cloud colors as np.array, without fall (cliff) points.
+
+- `pointcloud/`:
+    - `point_cloud.ply`: PLY file with colored pointcloud, z value means distance in pixels from perspective view to ortho view. To conver to metric value must be scaled.
+
+
+#### Internal files:
+- `patches/`:  Input file splitte on patches.     
+- `depathmaps/`: Patches after processing by monocular depth estimation model.
+- `heightmaps/`: Inverted depthmaps without background, scaled from 0 to 1.
+- `directions/`: View directions from heightmaps.
+
+# This toolbox can:
 1. **Split big GeoTIF images on patches, process each patch with a monocular depth model and normalizer results and save them as GeoTIF images**
 ![split infer merge](docs/split-infer-merge.jpg)
 
@@ -27,7 +48,10 @@ It looks like analytics and orthophoto generation may require a significant amou
 3. **Ortho from Perspective images**
 ![ortho](docs/ortho.jpg)
 
-4. **Occlusion map, to see what cannot be seen**
+4. **Point cloud from Perspective images**
+![ply](docs/ply.jpg)
+
+5. **Occlusion map, to see what cannot be seen**
 ![occlusion](docs/occlusion_map.jpg)
 
 ## Algorithms Description:
@@ -77,22 +101,26 @@ It looks like analytics and orthophoto generation may require a significant amou
 
 
 #### 7. ortho.py
-- Convert analytics and raster to point cloud -> transform -> store as color.tif and height.tif
+- Convert analytics and raster to point cloud -> transform -> store as color.tif and height.tif.
 
 - Zero values in ortho depict occlusions.
 
+#### 8. point_cloud.py
+- Convert generated points to PLY point cloud.
 
-## Tests
+# Updates:
 
-Due I not found any specific datasets, I just grabbed 6 images form all around the world.
+**Update 20 Jul 2025:**
 
-If ortho looks fine - it means height estimation and depth are also fine.
-
-I used the Meta Depth Anything V2 model because it is more CPU-friendly.
-
-![Cross correlation](docs/test_1.jpg)
-
-Across all six samples, none failed completely. Directions were calculated quite accurately in every case. There were some issues, such as inaccurately segmented walls in Batumi and background removal problems for the Chicago warehouse. However, overall, everything looks reasonably good.
+- Fixed size limit of 3840 pixels.
+- Added multiprocessing to heightmaps estimation (speedup on multicore CPU-s).
+- Fixed unstable work with some GeoTIF profiles.
+- Added generation of PLY pointclouds.
+- Added generation of 'occlustion.tif' as a separate GeoTIF file.
+- Reduced abount of memory used by ortho generation.
+- Improved documentation.
+- Made more tests to estimate solution perfomance.
+    
 
  # Licensing:
  - The code is released under the MIT License.
