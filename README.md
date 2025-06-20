@@ -120,7 +120,6 @@ Best use with Z18 scale, or about 0.6m GSD and not a very big GeoTIF, due some a
 - Reduced abount of memory used by ortho generation.
 - Improved documentation.
 - Made more tests to estimate solution perfomance.
-    
 
  # Licensing:
  - The code is released under the MIT License.
